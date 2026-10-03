@@ -8,50 +8,69 @@
     <title>Scania Truck APS Failure Prediction</title>
 
     <style>
+
         * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f4f6f8;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f3f6fa;
             color: #1f2937;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: #111827;
+            color: white;
+            padding: 28px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 30px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #d1d5db;
+            font-size: 15px;
         }
 
         .container {
-            max-width: 850px;
-            margin: 50px auto;
-            padding: 20px;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
         }
 
         .card {
             background: white;
-            padding: 35px;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.10);
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 10px;
-            color: #111827;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #6b7280;
-            margin-bottom: 35px;
-        }
-
-        .input-section {
+            border-radius: 14px;
+            padding: 30px;
             margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .card h2 {
+            margin-bottom: 10px;
+            font-size: 22px;
+        }
+
+        .description {
+            color: #6b7280;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
         }
 
         label {
             display: block;
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         input[type="number"] {
@@ -67,13 +86,7 @@
             border-color: #2563eb;
         }
 
-        .range-info {
-            margin-top: 8px;
-            color: #6b7280;
-            font-size: 14px;
-        }
-
-        button {
+        .button {
             width: 100%;
             padding: 14px;
             border: none;
@@ -85,189 +98,320 @@
             cursor: pointer;
         }
 
-        button:hover {
+        .button:hover {
             background: #1d4ed8;
         }
 
-        .result {
-            margin-top: 30px;
+        /* NORMAL RESULT */
+
+        .result-normal {
+            border-left: 6px solid #16a34a;
+            background: #f0fdf4;
             padding: 25px;
             border-radius: 10px;
-            background: #eef2ff;
-            text-align: center;
+            margin-top: 25px;
         }
 
-        .result h2 {
-            margin-top: 0;
+        .result-normal h2 {
+            color: #15803d;
+            margin-bottom: 15px;
         }
 
-        .prediction {
-            font-size: 26px;
+        /* FAILURE RESULT */
+
+        .result-failure {
+            border-left: 6px solid #dc2626;
+            background: #fef2f2;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 25px;
+        }
+
+        .result-failure h2 {
+            color: #b91c1c;
+            margin-bottom: 15px;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .result-item {
+            background: white;
+            padding: 18px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .result-label {
+            color: #6b7280;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        .result-value {
+            font-size: 20px;
             font-weight: bold;
-            margin: 15px 0;
         }
 
         .probability {
-            font-size: 20px;
-            margin: 10px 0;
-        }
-
-        .actual {
-            margin-top: 15px;
-            color: #4b5563;
+            font-size: 28px;
+            color: #2563eb;
         }
 
         .error {
-            margin-top: 25px;
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
             padding: 15px;
-            background: #fee2e2;
-            color: #991b1b;
             border-radius: 8px;
-            text-align: center;
+            margin-top: 20px;
         }
 
-        .info {
-            margin-top: 30px;
+        .info-box {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
             padding: 20px;
-            background: #f3f4f6;
             border-radius: 10px;
+            line-height: 1.7;
             color: #4b5563;
-            line-height: 1.6;
-        }
-
-        .info h3 {
-            margin-top: 0;
-            color: #1f2937;
         }
 
         .footer {
             text-align: center;
-            margin-top: 25px;
-            color: #9ca3af;
+            padding: 25px;
+            color: #6b7280;
             font-size: 13px;
         }
+
+        @media (max-width: 600px) {
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
     </style>
 
 </head>
 
 <body>
 
-<div class="container">
-
-    <div class="card">
+    <div class="header">
 
         <h1>Scania Truck APS Failure Prediction</h1>
 
-        <p class="subtitle">
-            Machine Learning System for Predicting APS Component Failures
+        <p>
+            Machine Learning System for Predictive Maintenance
         </p>
-
-
-        <form method="POST">
-
-            <div class="input-section">
-
-                <label for="record_number">
-                    Enter Truck Record Number
-                </label>
-
-                <input
-                    type="number"
-                    id="record_number"
-                    name="record_number"
-                    min="1"
-                    max="{{ total_records }}"
-                    placeholder="Example: 1"
-                    value="{{ record_number if record_number else '' }}"
-                    required
-                >
-
-                <div class="range-info">
-                    Enter a number between 1 and {{ total_records }}
-                </div>
-
-            </div>
-
-            <button type="submit">
-                Predict APS Failure
-            </button>
-
-        </form>
-
-
-        {% if prediction %}
-
-        <div class="result">
-
-            <h2>Prediction Result</h2>
-
-            <p>
-                <strong>Truck Record:</strong>
-                {{ record_number }}
-            </p>
-
-            <div class="prediction">
-                {{ prediction }}
-            </div>
-
-            <div class="probability">
-                <strong>Failure Probability:</strong>
-                {{ probability }}%
-            </div>
-
-            <div class="actual">
-                <strong>Actual Result:</strong>
-                {{ actual }}
-            </div>
-
-        </div>
-
-        {% endif %}
-
-
-        {% if error %}
-
-        <div class="error">
-
-            <strong>Error:</strong>
-
-            <p>{{ error }}</p>
-
-        </div>
-
-        {% endif %}
-
-
-        <div class="info">
-
-            <h3>About this system</h3>
-
-            <p>
-                This application uses a trained Random Forest machine
-                learning model to predict whether a Scania truck is
-                likely to experience an APS-related failure.
-            </p>
-
-            <p>
-                The model uses 163 sensor features after data preprocessing
-                and missing-value handling.
-            </p>
-
-            <p>
-                The training dataset contains {{ total_records }}
-                truck records.
-            </p>
-
-        </div>
-
-
-        <div class="footer">
-            Scania Truck APS Failure Prediction | Machine Learning Project
-        </div>
 
     </div>
 
-</div>
+
+    <div class="container">
+
+
+        <!-- Prediction Input -->
+
+        <div class="card">
+
+            <h2>Truck Prediction</h2>
+
+            <p class="description">
+                Enter a truck record number from the Scania APS dataset
+                to predict whether an APS failure is likely.
+            </p>
+
+
+            <form method="POST">
+
+                <div class="form-group">
+
+                    <label for="record_number">
+                        Truck Record Number
+                    </label>
+
+                    <input
+                        type="number"
+                        id="record_number"
+                        name="record_number"
+                        min="1"
+                        max="{{ total_records }}"
+                        placeholder="Example: 10"
+                        value="{{ record_number if record_number else '' }}"
+                        required
+                    >
+
+                </div>
+
+
+                <button type="submit" class="button">
+                    Predict APS Failure
+                </button>
+
+            </form>
+
+
+            {% if error %}
+
+            <div class="error">
+
+                <strong>Error:</strong> {{ error }}
+
+            </div>
+
+            {% endif %}
+
+
+            {% if prediction %}
+
+
+                {% if prediction == "NORMAL" %}
+
+                <div class="result-normal">
+
+                    <h2>✓ NORMAL</h2>
+
+                    <p>
+                        The machine learning model predicts that this
+                        truck is operating normally.
+                    </p>
+
+                {% else %}
+
+                <div class="result-failure">
+
+                    <h2>⚠ APS FAILURE</h2>
+
+                    <p>
+                        The machine learning model predicts an APS failure
+                        for this truck record.
+                    </p>
+
+                {% endif %}
+
+
+                    <div class="result-grid">
+
+                        <div class="result-item">
+
+                            <div class="result-label">
+                                Prediction
+                            </div>
+
+                            <div class="result-value">
+                                {{ prediction }}
+                            </div>
+
+                        </div>
+
+
+                        <div class="result-item">
+
+                            <div class="result-label">
+                                Failure Probability
+                            </div>
+
+                            <div class="result-value probability">
+                                {{ probability }}%
+                            </div>
+
+                        </div>
+
+
+                        <div class="result-item">
+
+                            <div class="result-label">
+                                Dataset Actual Result
+                            </div>
+
+                            <div class="result-value">
+                                {{ actual }}
+                            </div>
+
+                        </div>
+
+
+                        <div class="result-item">
+
+                            <div class="result-label">
+                                Record Number
+                            </div>
+
+                            <div class="result-value">
+                                {{ record_number }}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- About Section -->
+
+        <div class="card">
+
+            <h2>About the System</h2>
+
+            <div class="info-box">
+
+                This project uses a Random Forest machine learning model
+                to predict Air Pressure System (APS) failures in Scania trucks.
+
+                <br><br>
+
+                The model was trained using the Scania APS Failure dataset,
+                which contains sensor measurements from heavy commercial vehicles.
+
+                <br><br>
+
+                <strong>Model:</strong> Random Forest Classifier
+
+                <br>
+
+                <strong>Purpose:</strong> Predict potential APS failures
+                before they occur.
+
+                <br>
+
+                <strong>Dataset Records:</strong> {{ total_records }}
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <div class="footer">
+
+        Scania Truck APS Failure Prediction Project
+
+        <br>
+
+        Machine Learning • Predictive Maintenance • Flask
+
+    </div>
+
 
 </body>
 
