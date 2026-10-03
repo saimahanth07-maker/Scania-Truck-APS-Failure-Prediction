@@ -5,3 +5,4 @@ scipy==1.18.1
 joblib==1.6.0
 matplotlib==3.11.2
 jupyter==1.1.1
+Flask==3.1.2
