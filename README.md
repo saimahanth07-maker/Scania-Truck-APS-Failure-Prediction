@@ -1,48 +1,65 @@
 # Scania Truck APS Failure Prediction
 
+A machine learning project for predicting **Air Pressure System (APS) failures in Scania heavy trucks** using sensor data and a Random Forest classification model.
+
 ## 📌 Project Overview
 
-The **Scania Truck APS Failure Prediction** project uses machine learning to predict whether a heavy truck is likely to experience an **Air Pressure System (APS) failure**.
+The Air Pressure System (APS) is an important component in heavy trucks. A failure in the APS can affect vehicle operation and may require maintenance.
 
-The project uses sensor data from the Scania APS dataset and focuses on handling the highly imbalanced classification problem, where normal operating conditions are much more common than failures.
+This project uses machine learning to analyze truck sensor measurements and predict whether a truck is likely to experience an APS failure.
 
-A **class-balanced Random Forest classifier** is trained to identify potential APS failures.
+The system includes:
+
+* Data preprocessing
+* Missing-value handling
+* Class-imbalance analysis
+* Machine learning model training
+* Random Forest classification
+* Model evaluation
+* Prediction probability estimation
+* Flask web application
+* Model performance dashboard
+* Confusion matrix visualization
+* ROC curve visualization
+* Feature importance visualization
 
 ---
 
 ## 🎯 Objectives
 
-* Load and analyze the Scania APS dataset.
-* Handle missing sensor values.
-* Remove features with excessive missing data.
-* Handle the highly imbalanced target classes.
-* Build a baseline classification model.
-* Train a class-balanced Random Forest model.
-* Evaluate model performance using precision, recall, F1-score, ROC-AUC, and confusion matrix.
-* Save the trained model.
-* Create a standalone prediction script.
+The main objectives of this project are:
+
+1. Analyze the Scania APS sensor dataset.
+2. Clean and preprocess the sensor data.
+3. Handle the highly imbalanced target classes.
+4. Train a machine learning model for APS failure prediction.
+5. Evaluate the model using multiple performance metrics.
+6. Build a web-based prediction interface.
+7. Display model performance and visualizations through a dashboard.
 
 ---
 
 ## 📊 Dataset
 
-The project uses the **Scania Truck APS Failure dataset**.
+The project uses the **Scania APS Failure dataset**.
 
-The dataset contains:
+### Dataset characteristics
 
-* **60,000 training records**
-* **170 sensor/features plus the target**
-* Target classes:
+| Property            |   Value |
+| ------------------- | ------: |
+| Total records       |  60,000 |
+| Original features   |     170 |
+| Target column       | `class` |
+| Normal records      |  59,000 |
+| APS failure records |   1,000 |
+| Missing values      | 850,015 |
 
-  * `neg` → Normal operation
-  * `pos` → APS failure
+The target variable contains two classes:
 
-The original dataset is highly imbalanced:
+* `neg` → Normal truck
+* `pos` → APS failure
 
-| Class   | Records |
-| ------- | ------: |
-| Normal  |  59,000 |
-| Failure |   1,000 |
+The dataset is highly imbalanced, with significantly fewer failure cases than normal cases.
 
 ---
 
@@ -50,44 +67,57 @@ The original dataset is highly imbalanced:
 
 The following preprocessing steps were performed:
 
-1. Loaded the dataset while handling `"na"` values as missing values.
-2. Converted the target:
+### 1. Dataset loading
 
-   * `neg` → `0`
-   * `pos` → `1`
-3. Removed the target column from the feature matrix.
-4. Removed features with more than **70% missing values**.
-5. Filled remaining missing numerical values using the **median**.
-6. Obtained **163 usable features**.
-7. Used an **80/20 stratified train-validation split**.
+The raw Scania dataset was loaded using Pandas.
 
-### Dataset Split
+### 2. Metadata removal
 
-| Dataset    | Samples | Features |
-| ---------- | ------: | -------: |
-| Training   |  48,000 |      163 |
-| Validation |  12,000 |      163 |
+The dataset contains metadata/header information, so the appropriate rows were skipped during loading.
+
+### 3. Target conversion
+
+The target class was converted into numerical values:
+
+```text
+neg → 0
+pos → 1
+```
+
+### 4. Missing-value conversion
+
+The string value `na` was converted into proper missing values.
+
+### 5. Numeric conversion
+
+Sensor features were converted into numerical data types.
+
+### 6. High-missingness feature removal
+
+Features with more than **70% missing values** were removed.
+
+### 7. Median imputation
+
+Remaining missing values were replaced using the median value of each feature.
+
+### 8. Stratified train-validation split
+
+The processed dataset was divided into training and validation sets while preserving the class distribution.
+
+```text
+Training set:   48,000 records
+Validation set: 12,000 records
+```
 
 ---
 
-## 🤖 Models
+## 🤖 Machine Learning Model
 
-### Baseline Model
+### Random Forest Classifier
 
-A simple baseline model was created that predicts every truck as normal.
+The main prediction model is a **Random Forest Classifier**.
 
-The baseline achieved:
-
-* Accuracy: **98.33%**
-* Failure Precision: **0.00%**
-* Failure Recall: **0.00%**
-* Failure F1-score: **0.00%**
-
-Although the accuracy appears high, the baseline failed to identify any APS failures. This demonstrates why accuracy alone is not sufficient for this imbalanced classification problem.
-
-### Random Forest
-
-A Random Forest classifier was trained using:
+Configuration:
 
 ```python
 RandomForestClassifier(
@@ -98,85 +128,120 @@ RandomForestClassifier(
 )
 ```
 
-The `class_weight="balanced"` setting gives greater importance to the minority failure class.
+The `class_weight="balanced"` parameter was used to help the model handle the strong class imbalance in the dataset.
 
 ---
 
 ## 📈 Model Performance
 
-The Random Forest achieved the following validation results:
+The Random Forest model was evaluated on the validation dataset.
 
-| Metric    | Baseline | Random Forest |
-| --------- | -------: | ------------: |
-| Accuracy  |   98.33% |    **99.18%** |
-| Precision |    0.00% |    **74.16%** |
-| Recall    |    0.00% |    **77.50%** |
-| F1-Score  |    0.00% |    **75.79%** |
-| ROC-AUC   |        — |    **99.02%** |
+| Metric    | Result |
+| --------- | -----: |
+| Accuracy  | 99.18% |
+| Precision | 74.16% |
+| Recall    | 77.50% |
+| F1 Score  | 75.79% |
+| ROC-AUC   | 99.02% |
 
 ### Confusion Matrix
 
-```text
-                  Predicted
-                Normal  Failure
+The validation confusion matrix was:
 
-Actual Normal     11746      54
-Actual Failure       45     155
+```text
+[[11746    54]
+ [   45   155]]
 ```
 
-The model correctly identified **155 of the 200 failure cases** in the validation set.
+This represents:
+
+* True Negatives: **11,746**
+* False Positives: **54**
+* False Negatives: **45**
+* True Positives: **155**
+
+The model therefore identifies a substantial portion of the APS failure cases while maintaining high overall accuracy.
 
 ---
 
-## 📊 Visualizations
+## 📊 Model Visualizations
 
-The project includes:
+The project includes the following visualizations:
 
-* Random Forest confusion matrix
-* ROC curve
-* Top 20 feature importance plot
-* Baseline vs Random Forest metric comparison
+### Confusion Matrix
 
-These visualizations help analyze the model beyond simple accuracy.
+Shows the number of correct and incorrect predictions for each class.
+
+### ROC Curve
+
+Shows the relationship between the true-positive rate and false-positive rate at different classification thresholds.
+
+### Feature Importance
+
+Displays the top 20 sensor features contributing to the Random Forest model.
+
+These visualizations are available in:
+
+```text
+app/static/
+├── confusion_matrix.png
+├── roc_curve.png
+└── feature_importance.png
+```
 
 ---
 
-## 💾 Saved Model
+## 🌐 Web Application
 
-The trained Random Forest model is saved as:
+A Flask-based web application was developed to make the trained model accessible through a browser.
 
-```text
-models/random_forest_aps_model.pkl
-```
-
-The model can be loaded later using `joblib`.
-
----
-
-## 🔮 Prediction
-
-A standalone prediction script is provided:
-
-```text
-src/predict.py
-```
-
-Run it from the project root:
+Run the application using:
 
 ```powershell
-python src/predict.py
+python app\app.py
 ```
 
-The script loads the saved model, prepares the dataset, and produces a prediction such as:
+Then open:
 
 ```text
-==========================================
-        APS FAILURE PREDICTION
-==========================================
+http://127.0.0.1:5000
+```
+
+### Web application features
+
+The application provides:
+
+* Truck record selection
+* APS failure prediction
+* Failure probability
+* Actual dataset result
+* Model performance metrics
+* Confusion matrix
+* ROC curve
+* Feature importance chart
+* Responsive user interface
+
+---
+
+## 🔮 Prediction Output
+
+For a selected truck record, the system displays:
+
+```text
 Prediction: NORMAL
 Failure Probability: 0.00%
-==========================================
+Actual Result: NORMAL
 ```
+
+or:
+
+```text
+Prediction: APS FAILURE
+Failure Probability: 100.00%
+Actual Result: APS FAILURE
+```
+
+The probability is generated using the Random Forest model's `predict_proba()` function.
 
 ---
 
@@ -184,6 +249,17 @@ Failure Probability: 0.00%
 
 ```text
 Scania-Truck-APS-Failure-Prediction/
+│
+├── app/
+│   ├── app.py
+│   │
+│   ├── static/
+│   │   ├── confusion_matrix.png
+│   │   ├── roc_curve.png
+│   │   └── feature_importance.png
+│   │
+│   └── templates/
+│       └── index.html
 │
 ├── data/
 │   └── raw/
@@ -193,7 +269,7 @@ Scania-Truck-APS-Failure-Prediction/
 │   └── random_forest_aps_model.pkl
 │
 ├── notebooks/
-│   └── APS Failure Prediction notebook
+│   └── 01_Data_Collection.ipynb
 │
 ├── src/
 │   └── predict.py
@@ -205,15 +281,40 @@ Scania-Truck-APS-Failure-Prediction/
 
 ---
 
+## 💻 Technologies Used
+
+### Programming Language
+
+* Python 3.13
+
+### Libraries
+
+* Pandas
+* NumPy
+* Scikit-learn
+* SciPy
+* Joblib
+* Matplotlib
+* Jupyter
+* Flask
+
+### Development Tools
+
+* Visual Studio Code
+* Git
+* GitHub
+
+---
+
 ## ⚙️ Installation
 
 Clone the repository:
 
 ```bash
-git clone <YOUR-GITHUB-REPOSITORY-URL>
+git clone https://github.com/saimahanth07-maker/Scania-Truck-APS-Failure-Prediction.git
 ```
 
-Move into the project directory:
+Navigate into the project:
 
 ```bash
 cd Scania-Truck-APS-Failure-Prediction
@@ -228,7 +329,7 @@ python -m venv .venv
 Activate it on Windows:
 
 ```powershell
-.venv\Scripts\activate
+.venv\Scripts\Activate.ps1
 ```
 
 Install dependencies:
@@ -239,28 +340,43 @@ pip install -r requirements.txt
 
 ---
 
-## ▶️ Running the Prediction
+## ▶️ Running the Prediction Script
 
-After installing the dependencies and ensuring the model file exists:
+The standalone prediction script can be executed using:
 
 ```powershell
-python src/predict.py
+python src\predict.py
+```
+
+The script loads the trained Random Forest model and performs a prediction using a sample truck record.
+
+---
+
+## 🌐 Running the Flask Application
+
+Start the web application:
+
+```powershell
+python app\app.py
+```
+
+Open the application in a browser:
+
+```text
+http://127.0.0.1:5000
 ```
 
 ---
 
-## 🛠️ Technologies Used
+## 🧠 Model File
 
-* Python
-* Pandas
-* NumPy
-* Scikit-learn
-* SciPy
-* Matplotlib
-* Joblib
-* Jupyter Notebook
-* VS Code
-* Git & GitHub
+The trained model is stored at:
+
+```text
+models/random_forest_aps_model.pkl
+```
+
+The Flask application loads this model using Joblib.
 
 ---
 
@@ -269,19 +385,45 @@ python src/predict.py
 Possible future improvements include:
 
 * Hyperparameter tuning
-* Threshold optimization
-* Additional imbalance-handling techniques
+* XGBoost or LightGBM comparison
+* Advanced class-imbalance techniques such as SMOTE
 * Cross-validation
-* Model comparison with XGBoost or other classifiers
-* Interactive prediction interface
-* Deployment as a web application
-* Real-time sensor prediction
+* Threshold optimization
+* SHAP-based model explainability
+* Real-time sensor-data integration
+* Cloud deployment
+* Database integration
+* Docker deployment
+* Automated model retraining
+* Monitoring model performance over time
 
 ---
 
-## 👨‍💻 Project Status
+## 📌 Project Status
 
-**Status: Completed — Machine Learning Prototype**
+**Status: Completed**
 
-The project currently includes data preprocessing, model training, evaluation, model persistence, and a standalone prediction script.
+The project currently includes:
 
+* ✅ Dataset preprocessing
+* ✅ Missing-value handling
+* ✅ Class-imbalance handling
+* ✅ Random Forest model
+* ✅ Model evaluation
+* ✅ Saved trained model
+* ✅ Standalone prediction script
+* ✅ Flask web application
+* ✅ Prediction interface
+* ✅ Model performance dashboard
+* ✅ Confusion matrix
+* ✅ ROC curve
+* ✅ Feature importance visualization
+* ✅ GitHub repository
+
+---
+
+## 👨‍💻 Author
+
+**Sai Mahanth**
+
+Scania Truck APS Failure Prediction — Machine Learning Project
